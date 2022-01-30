@@ -28,8 +28,7 @@ var MenuSchema = new Schema({
   },
   currency: {
     required: true,
-    type: String
+    type: String,
   },
 });
-const Menu = mongoose.model('Menu', MenuSchema);
-module.exports = Menu;
+module.exports = MenuSchema;
