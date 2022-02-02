@@ -1,41 +1,38 @@
 const router = require('express').Router();
-const Menu = require('../models/menu.model');
+const User = require('../models/user.model');
 
 router.route('/:id').get((req, res) => {
   console.log(`get menu ${req.params.id}`);
   res.status(200).send(`get menu ${req.params.id}`);
 });
 
-router.route('/').post((req, res) => {
-  console.log(req.ip);
-  console.log(req.body);
-  const newMenu = Menu(req.body);
+//TODO: modify routes based on new user schema.
 
-  newMenu
-    .save()
-    .then((menu) => {
-      res.json({
-        success: true,
-        id: menu._id,
-      });
-    })
-    .catch((err) => res.status(400).json({ success: false }));
+//Add a new menu for the user
+router.route('/').post(async (req, res) => {
+  const newMenu = req.body.menu;
+  const userID = req.body.userID;
+  let user;
+
+  try {
+    user = await User.findOne({ userID: userID });
+  } catch (err) {
+    console.log('Error finding the user : ', err);
+    res.status(400).send({ success: false });
+  }
+
+  user.menus.push(newMenu);
+
+  try {
+    await user.save();
+  } catch (err) {
+    console.log('Error saving the user : ', err);
+    res.status(400).send({ success: false });
+  }
+  res.send({ success: true });
 });
 
-router.route('/:id').delete((req, res) => {
-  Menu.deleteOne({ _id: req.params.id })
-    .then((deletedMenu) => {
-      res.json({
-        success: true,
-        id: deletedMenu._id,
-      });
-    })
-    .catch((err) => {
-      res.status(400).json({
-        success: false,
-      });
-    });
-});
+router.route('/:id').delete((req, res) => {});
 
 router.route('/:id').patch((req, res) => {
   //To be implemented.
