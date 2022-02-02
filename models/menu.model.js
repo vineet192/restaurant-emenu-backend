@@ -3,10 +3,6 @@ const Schema = mongoose.Schema;
 const Dish = require('./dish.model');
 
 var MenuSchema = new Schema({
-  userID: {
-    type: String,
-    required: true,
-  },
   categories: {
     required: true,
     type: [
