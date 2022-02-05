@@ -6,8 +6,6 @@ router.route('/:id').get((req, res) => {
   res.status(200).send(`get menu ${req.params.id}`);
 });
 
-//TODO: modify routes based on new user schema.
-
 //Add a new menu for the user
 router.route('/').post(async (req, res) => {
   const newMenu = req.body.menu;
@@ -15,7 +13,6 @@ router.route('/').post(async (req, res) => {
   let user;
 
   user = await User.findOne({ userID: userID });
-  res.status(400).send({ success: false });
 
   user.menus.push(newMenu);
 
@@ -26,6 +23,23 @@ router.route('/').post(async (req, res) => {
 router.route('/:id').delete((req, res) => {
   const menuID = req.params.id;
   const userID = req.body.userID;
+  let user;
+
+  user = await User.findOne({ userID: userID });
+
+  user.menus.id(menuID).remove();
+  user.save();
+  res.send({ success: true });
+});
+
+router.route('/:id').get(async (req, res) => {
+  const menuID = req.params.id;
+  const userID = req.body.userID;
+
+  user = await User.findOne({ userID: userID });
+
+  const menu = user.menus.id(menuID);
+  res.send({ success: true, menu: menu });
 });
 
 router.route('/:id').patch((req, res) => {
