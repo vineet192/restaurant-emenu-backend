@@ -14,12 +14,8 @@ router.route('/').post(async (req, res) => {
   const userID = req.body.userID;
   let user;
 
-  try {
-    user = await User.findOne({ userID: userID });
-  } catch (err) {
-    console.log('Error finding the user : ', err);
-    res.status(400).send({ success: false });
-  }
+  user = await User.findOne({ userID: userID });
+  res.status(400).send({ success: false });
 
   user.menus.push(newMenu);
 
