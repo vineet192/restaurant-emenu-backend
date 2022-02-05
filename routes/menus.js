@@ -19,16 +19,14 @@ router.route('/').post(async (req, res) => {
 
   user.menus.push(newMenu);
 
-  try {
-    await user.save();
-  } catch (err) {
-    console.log('Error saving the user : ', err);
-    res.status(400).send({ success: false });
-  }
+  await user.save();
   res.send({ success: true });
 });
 
-router.route('/:id').delete((req, res) => {});
+router.route('/:id').delete((req, res) => {
+  const menuID = req.params.id;
+  const userID = req.body.userID;
+});
 
 router.route('/:id').patch((req, res) => {
   //To be implemented.
