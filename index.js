@@ -9,16 +9,32 @@ require('dotenv').config();
 const app = express();
 app.use(express.json());
 
+//configure cors
+app.use(cors());
+
 const PORT = process.env.PORT || 3000;
-const DB_URL = process.env.DB_URL
+const DB_URL = process.env.DB_URL;
 
 //Defining the routes
+userRoutes = require('./routes/user');
+app.use('/user', userRoutes);
+
 menuRoutes = require('./routes/menus');
 app.use('/menu', menuRoutes);
 
+//Defining error handler
+app.use(function (err, req, res, next) {
+  console.log(err.message);
+  res.status(400).send({
+    success: false,
+    msg: err.message,
+  });
+});
+
 //Establishing the database connection.
-mongoose.connect(DB_URL, { useNewUrlParser: true, useUnifiedTopology:true}).
-catch(error => console.log("Database connection error" + error));
+mongoose
+  .connect(DB_URL, { useNewUrlParser: true, useUnifiedTopology: true })
+  .catch((error) => console.log('Database connection error' + error));
 
 //Validating database connection
 var connection = mongoose.connection;
@@ -28,5 +44,5 @@ connection.once('open', () => {
 
 //Express server.
 app.listen(PORT, () => {
-  console.log(`Server started. Listening on port ${app.path() + ":" + PORT}`);
+  console.log(`Server started. Listening on port ${app.path() + ':' + PORT}`);
 });
