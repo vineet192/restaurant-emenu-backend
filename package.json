@@ -12,7 +12,6 @@
   "license": "ISC",
   "devDependencies": {
     "fakingoose": "^2.2.1",
-    "mongoose-dummy": "^1.0.8",
     "nodemon": "^2.0.15"
   },
   "dependencies": {
