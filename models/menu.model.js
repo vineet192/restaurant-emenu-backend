@@ -22,6 +22,10 @@ var MenuSchema = new Schema({
     required: true,
     type: String,
   },
+  isPublic: {
+    type: Boolean,
+    required: true,
+  },
   currency: {
     required: true,
     type: String,
