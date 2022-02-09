@@ -24,11 +24,9 @@ app.use('/menu', menuRoutes);
 
 //Defining error handler
 app.use(function (err, req, res, next) {
-  console.log(err.message);
-  res.status(400).send({
-    success: false,
-    msg: err.message,
-  });
+  console.log(err.name)
+  res.status(500);
+  res.send({ success: false, msg: err.name });
 });
 
 //Establishing the database connection.

@@ -1,11 +1,32 @@
 const router = require('express').Router();
 const User = require('../models/user.model');
 
-//Get all menus of a user
-router.route('/:uid').get(async (req, res) => {
+//Get all menus of a user, or query for a single menu of that user (use query parameter menuID)
+router.route('/:uid').get(async (req, res, next) => {
   const userID = req.params.uid;
+  const menuID = req.query.menuID;
+  let user;
 
-  let user = await User.findOne({ userID: userID });
+  try {
+    user = await User.findOne({ userID: userID }).orFail();
+  } catch (err) {
+    res.status(404).send({ msg: `Cannot find user with userID=${userID}` });
+    return;
+  }
+
+  if (menuID) {
+    let menu = user.menus.id(menuID);
+
+    if (!menu) {
+      res.status(404).send({
+        msg: `User ${userID} does not have a menu with menuID = ${menuID}`,
+      });
+      return;
+    }
+
+    res.status(201).send({ menu: menu });
+  }
+
   let menus = user.menus;
 
   res.send({ menus: menus });
