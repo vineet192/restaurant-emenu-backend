@@ -1,5 +1,5 @@
 const { Schema, model } = require('mongoose');
-const Menu = require('./menu.model');
+const { MenuSchema } = require('./menu.model');
 
 var UserSchema = new Schema({
   userID: {
@@ -7,8 +7,8 @@ var UserSchema = new Schema({
     required: true,
   },
 
-  menus: [Menu],
+  menus: [MenuSchema]
 });
 
-const User = model('User', UserSchema)
-module.exports = User
+const User = model('User', UserSchema);
+module.exports = User;
