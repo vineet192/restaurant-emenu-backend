@@ -1,5 +1,4 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+const { Schema, model } = require('mongoose');
 const Dish = require('./dish.model');
 
 var MenuSchema = new Schema({
@@ -31,4 +30,5 @@ var MenuSchema = new Schema({
     type: String,
   },
 });
-module.exports = MenuSchema;
+const Menu = model('Menu', MenuSchema);
+module.exports = { Menu, MenuSchema };
