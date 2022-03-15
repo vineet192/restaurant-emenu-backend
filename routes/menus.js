@@ -112,9 +112,10 @@ router.route('/:uid/:menuid').patch(async (req, res) => {
   const menuID = req.params.menuid;
   const userID = req.params.uid;
   const newMenu = req.body;
+  let user;
 
   try {
-    let user = await User.findOne({ userID: userID });
+    user = await User.findOne({ userID: userID });
   } catch (err) {
     res.status(404).send({
       instance: req.originalUrl,
