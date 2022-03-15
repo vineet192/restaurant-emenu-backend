@@ -11,27 +11,34 @@ router.route('/:uid').get(async (req, res, next) => {
   try {
     user = await User.findOne({ userID: userID }).orFail();
   } catch (err) {
-    res.status(404).send({ msg: `Cannot find user with userID=${userID}` });
+    res.status(404).send({
+      instance: req.originalUrl,
+      title: `User not found`,
+      detail: 'The user was not found in the database',
+    });
     return;
   }
 
-  if (menuID) {
-    let menu = user.menus.id(menuID);
+  if (!menuID) {
+    let menus = user.menus;
 
-    if (!menu) {
-      res.status(404).send({
-        msg: `User ${userID} does not have a menu with menuID = ${menuID}`,
-      });
-      return;
-    }
+    res.send({ menus: menus });
+  }
 
-    res.status(201).send({ menu: menu });
+  let menu = user.menus.id(menuID);
+
+  if (!menu) {
+    res.status(404).send({
+      instance: req.originalUrl,
+      title: `Menu not found`,
+      detail:
+        'The menu might have been deleted, try refreshing your webpage or adding the menu again',
+    });
     return;
   }
 
-  let menus = user.menus;
-
-  res.send({ menus: menus });
+  res.status(201).send({ menu: menu });
+  return;
 });
 
 //Add a new menu for the user
@@ -44,7 +51,11 @@ router.route('/:uid').post(async (req, res, next) => {
   try {
     user = await User.findOne({ userID: userID }).orFail();
   } catch (err) {
-    res.status(400).send({ success: false, msg: `User ${userID} not found!` });
+    res.status(404).send({
+      instance: req.originalUrl,
+      title: `User not found`,
+      detail: 'The user was not found in the database',
+    });
     return;
   }
 
@@ -81,23 +92,50 @@ router.route('/:id').delete(async (req, res) => {
 router.route('/:uid/:menuid').get(async (req, res) => {
   const menuID = req.params.menuid;
   const userID = req.body.uid;
+  let user;
 
-  let user = await User.findOne({ userID: userID });
-
+  try {
+    user = await User.findOne({ userID: userID });
+  } catch (err) {
+    res.status(404).send({
+      instance: req.originalUrl,
+      title: `User not found`,
+      detail: 'The user was not found in the database',
+    });
+    return;
+  }
   const menu = user.menus.id(menuID);
   res.send({ menu: menu });
 });
 
 router.route('/:uid/:menuid').patch(async (req, res) => {
-  //To be implemented.
   const menuID = req.params.menuid;
   const userID = req.params.uid;
   const newMenu = req.body;
 
-  let user = await User.findOne({ userID: userID });
-  user.menus.id(menuID).overwrite(newMenu);
+  try {
+    let user = await User.findOne({ userID: userID });
+  } catch (err) {
+    res.status(404).send({
+      instance: req.originalUrl,
+      title: `User not found`,
+      detail: 'The user was not found in the database',
+    });
+    return;
+  }
 
-  user.save()
+  try {
+    user.menus.id(menuID).overwrite(newMenu);
+  } catch (err) {
+    res.status(404).send({
+      instance: req.originalUrl,
+      title: `Menu not found`,
+      detail:
+        'The menu might have been deleted, try refreshing your webpage or adding the menu again',
+    });
+    return;
+  }
+  user.save();
   res.send();
 });
 
