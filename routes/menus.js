@@ -126,8 +126,9 @@ router.route('/:uid/:menuid').patch(async (req, res) => {
   }
 
   try {
-    user.menus.id(menuID).overwrite(newMenu);
+    await user.menus.id(menuID).set(newMenu);
   } catch (err) {
+    console.log(err);
     res.status(404).send({
       instance: req.originalUrl,
       title: `Menu not found`,
