@@ -62,7 +62,7 @@ router.route('/:uid').post(async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-  res.send({ success: true });
+  res.status(201).end();
 });
 
 router.route('/:id').delete(async (req, res) => {
@@ -74,7 +74,7 @@ router.route('/:id').delete(async (req, res) => {
 
   user.menus.id(menuID).remove();
   user.save();
-  res.send({ success: true });
+  res.status(200).end();
 });
 
 //Get a particular menu of a user
@@ -91,7 +91,7 @@ router.route('/:uid/:menuid').get(async (req, res) => {
     return;
   }
   const menu = user.menus.id(menuID);
-  res.send({ menu: menu });
+  res.status(200).send({ menu: menu });
 });
 
 router.route('/:uid/:menuid').patch(async (req, res) => {
@@ -116,7 +116,7 @@ router.route('/:uid/:menuid').patch(async (req, res) => {
     return;
   }
   user.save();
-  res.send();
+  res.status(200).send();
 });
 
 module.exports = router;
