@@ -1,7 +1,5 @@
 const router = require('express').Router();
 const User = require('../models/user.model');
-const { Menu } = require('../models/menu.model');
-const { exists } = require('../models/user.model');
 
 //Get all menus of a user, or query for a single menu of that user (use query parameter menuID)
 router.route('/:uid').get(async (req, res, next) => {
