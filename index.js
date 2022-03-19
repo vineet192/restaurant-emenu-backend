@@ -24,9 +24,31 @@ app.use('/menu', menuRoutes);
 
 //Defining error handler
 app.use(function (err, req, res, next) {
-  console.log(err.name)
-  res.status(500);
-  res.send({ success: false, msg: err.name });
+  switch (err.type) {
+    case 'user_not_found':
+      res.status(404).send({
+        instance: req.originalUrl,
+        title: `User not found`,
+        detail: 'The user was not found in the database',
+      });
+      break;
+
+    case 'menu_not_found':
+      res.status(404).send({
+        instance: req.originalUrl,
+        title: `Menu not found`,
+        detail:
+          'The menu might have been deleted, try refreshing your webpage or adding the menu again',
+      });
+      break;
+
+    default:
+      res.status(500).send({
+        instance: req.originalUrl,
+        title: 'Server Error',
+        detail: err.msg,
+      });
+  }
 });
 
 //Establishing the database connection.
