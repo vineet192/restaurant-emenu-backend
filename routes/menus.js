@@ -65,12 +65,18 @@ router.route('/:uid').post(async (req, res, next) => {
   res.status(201).end();
 });
 
-router.route('/:id').delete(async (req, res) => {
+router.route('/:id').delete(async (req, res, next) => {
   const menuID = req.params.id;
   const userID = req.body.userID;
   let user;
 
-  user = await User.findOne({ userID: userID });
+  try {
+    user = await User.findOne({ userID: userID }).orFail();
+  } catch (err) {
+    err.type = 'user_not_found';
+    next(err);
+    return;
+  }
 
   user.menus.id(menuID).remove();
   user.save();
