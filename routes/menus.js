@@ -1,12 +1,13 @@
 const router = require('express').Router();
 const User = require('../models/user.model');
-
+const { Menu } = require('../models/menu.model');
 //Get all menus of a user, or query for a single menu of that user (use query parameter menuID)
 router.route('/:uid').get(async (req, res, next) => {
   const userID = req.params.uid;
   const menuID = req.query.menuID;
   let user;
 
+  //TODO: the menus array now contains IDs of menus rather than menus themselves. Update this route accordingly.
   try {
     user = await User.findOne({ userID: userID }).orFail();
   } catch (err) {
@@ -37,6 +38,7 @@ router.route('/:uid').post(async (req, res, next) => {
   const menuName = req.body.menuName;
   const currency = req.body.currency;
   let user;
+  let menu;
 
   try {
     user = await User.findOne({ userID: userID }).orFail();
@@ -53,9 +55,15 @@ router.route('/:uid').post(async (req, res, next) => {
     currency: currency,
   };
 
-  user.menus.push(newMenu);
+  try {
+    menu = await Menu.create(newMenu);
+  } catch (err) {
+    err.type = 'bad_menu';
+    next(err)
+  }
 
   try {
+    user.menus.push(menu._id);
     await user.save();
   } catch (err) {
     next(err);

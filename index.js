@@ -42,11 +42,20 @@ app.use(function (err, req, res, next) {
       });
       break;
 
+    case 'bad_menu':
+      res.status(400).send({
+        instance: req.originalUrl,
+        title: 'Invalid Menu parameters',
+        detail: err.message,
+      });
+      break
+
     default:
+      console.log(err);
       res.status(500).send({
         instance: req.originalUrl,
         title: 'Server Error',
-        detail: err.msg,
+        detail: err.message,
       });
   }
 });

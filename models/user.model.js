@@ -7,7 +7,7 @@ var UserSchema = new Schema({
     required: true,
   },
 
-  menus: [MenuSchema]
+  menus: [String]
 });
 
 const User = model('User', UserSchema);
