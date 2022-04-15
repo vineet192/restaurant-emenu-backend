@@ -37,8 +37,7 @@ app.use(function (err, req, res, next) {
       res.status(404).send({
         instance: req.originalUrl,
         title: `Menu not found`,
-        detail:
-          'The menu might have been deleted, try refreshing your webpage or adding the menu again',
+        detail: err.message
       });
       break;
 
