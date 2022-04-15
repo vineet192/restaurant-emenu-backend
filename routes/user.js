@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const { Menu } = require('../models/menu.model');
 const User = require('../models/user.model');
 
 router.route('/init').post(async (req, res) => {
@@ -26,5 +27,7 @@ router.route('/init').post(async (req, res) => {
     msg: 'User initialized!',
   });
 });
+
+
 
 module.exports = router;

@@ -1,13 +1,27 @@
 const router = require('express').Router();
 const User = require('../models/user.model');
 const { Menu } = require('../models/menu.model');
+
 //Get all menus of a user, or query for a single menu of that user (use query parameter menuID)
-router.route('/:uid').get(async (req, res, next) => {
-  const userID = req.params.uid;
+router.route('/').get(async (req, res, next) => {
+  const userID = req.query.uid;
   const menuID = req.query.menuID;
   let user;
+  let menu;
 
-  //TODO: the menus array now contains IDs of menus rather than menus themselves. Update this route accordingly.
+  if(menuID){
+    try {
+      menu = await Menu.findById(menuID).orFail();
+    } catch (err) {
+      err.type = 'menu_not_found';
+      next(err);
+      return;
+    }
+
+    res.status(201).send({menu: menu})
+    return;
+  }
+
   try {
     user = await User.findOne({ userID: userID }).orFail();
   } catch (err) {
@@ -16,16 +30,10 @@ router.route('/:uid').get(async (req, res, next) => {
     return;
   }
 
+  //If there is no particular menuID specified, return all the menus of the user.
   if (!menuID) {
-    let menus = user.menus;
-    res.send({ menus: menus });
-    return;
-  }
-
-  let menu = user.menus.id(menuID);
-
-  if (!menu) {
-    next({ type: 'menu_not_found' });
+    let menus = await Menu.find().where('_id').in(user.menus).exec();
+    res.status(201).send({ menus: menus });
     return;
   }
 
@@ -33,10 +41,11 @@ router.route('/:uid').get(async (req, res, next) => {
 });
 
 //Add a new menu for the user
-router.route('/:uid').post(async (req, res, next) => {
-  const userID = req.params.uid;
+router.route('/').post(async (req, res, next) => {
+  const userID = req.body.uid;
   const menuName = req.body.menuName;
   const currency = req.body.currency;
+
   let user;
   let menu;
 
@@ -59,7 +68,7 @@ router.route('/:uid').post(async (req, res, next) => {
     menu = await Menu.create(newMenu);
   } catch (err) {
     err.type = 'bad_menu';
-    next(err)
+    next(err);
   }
 
   try {
@@ -71,64 +80,45 @@ router.route('/:uid').post(async (req, res, next) => {
   res.status(201).end();
 });
 
-router.route('/:id').delete(async (req, res, next) => {
-  const menuID = req.params.id;
-  const userID = req.body.userID;
-  let user;
+//delete the menu by its ID.
+router.route('/').delete(async (req, res, next) => {
+  const menuID = req.body.id;
 
   try {
-    user = await User.findOne({ userID: userID }).orFail();
+    await Menu.deleteOne({ _id: menuID }).orFail();
   } catch (err) {
-    err.type = 'user_not_found';
     next(err);
     return;
   }
 
-  user.menus.id(menuID).remove();
-  user.save();
-  res.status(200).end();
+  res.sendStatus(200);
 });
 
-//Get a particular menu of a user
-router.route('/:uid/:menuid').get(async (req, res) => {
-  const menuID = req.params.menuid;
-  const userID = req.body.uid;
-  let user;
+//Update a menu
+router.route('/').patch(async (req, res, next) => {
+  const menuID = req.body.menuID;
+  const newMenu = req.body.newMenu;
+  let menu;
 
   try {
-    user = await User.findOne({ userID: userID });
-  } catch (err) {
-    err.type = 'user_not_found';
-    next(err);
-    return;
-  }
-  const menu = user.menus.id(menuID);
-  res.status(200).send({ menu: menu });
-});
-
-router.route('/:uid/:menuid').patch(async (req, res) => {
-  const menuID = req.params.menuid;
-  const userID = req.params.uid;
-  const newMenu = req.body;
-  let user;
-
-  try {
-    user = await User.findOne({ userID: userID });
-  } catch (err) {
-    err.type = 'user_not_found';
-    next(err);
-    return;
-  }
-
-  try {
-    await user.menus.id(menuID).set(newMenu);
+    menu = await Menu.findById(menuID).orFail();
   } catch (err) {
     err.type = 'menu_not_found';
     next(err);
     return;
   }
-  user.save();
-  res.status(200).send();
+
+  try {
+    await menu.set(newMenu);
+  } catch (err) {
+    err.type = 'bad_menu';
+    next(err);
+    return;
+  }
+
+  menu.save();
+
+  res.sendStatus(204);
 });
 
 module.exports = router;
