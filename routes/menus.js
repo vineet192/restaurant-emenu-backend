@@ -9,7 +9,7 @@ router.route('/').get(async (req, res, next) => {
   let user;
   let menu;
 
-  if(menuID){
+  if (menuID) {
     try {
       menu = await Menu.findById(menuID).orFail();
     } catch (err) {
@@ -18,7 +18,7 @@ router.route('/').get(async (req, res, next) => {
       return;
     }
 
-    res.status(201).send({menu: menu})
+    res.status(201).send({ menu: menu });
     return;
   }
 
@@ -116,7 +116,11 @@ router.route('/').patch(async (req, res, next) => {
     return;
   }
 
-  menu.save();
+  try {
+    menu.save();
+  } catch (err) {
+    next(err);
+  }
 
   res.sendStatus(204);
 });
