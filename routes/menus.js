@@ -109,18 +109,18 @@ router.route('/').patch(async (req, res, next) => {
   }
 
   try {
-    await menu.set(newMenu);
+    const res = await Menu.updateOne({_id: menuID}, newMenu)
   } catch (err) {
     err.type = 'bad_menu';
     next(err);
     return;
   }
 
-  try {
-    menu.save();
-  } catch (err) {
-    next(err);
-  }
+  // try {
+  //   menu.save();
+  // } catch (err) {
+  //   next(err);
+  // }
 
   res.sendStatus(204);
 });
