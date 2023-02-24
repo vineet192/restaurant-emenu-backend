@@ -6,7 +6,7 @@ let DishSchema = Schema({
     type: String,
     required: true,
   },
-  dishDesciption: {
+  dishDescription: {
     type: String,
   },
   dishPrice: {
