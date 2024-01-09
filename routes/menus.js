@@ -7,6 +7,7 @@ const mongoose = require('mongoose')
 router.route('/').get(async (req, res, next) => {
   const userID = req.query.uid;
   const menuID = req.query.menuID;
+  const query = req.query.query;
   let user;
   let menu;
 
@@ -34,13 +35,17 @@ router.route('/').get(async (req, res, next) => {
     return;
   }
 
-  //If there is no particular menuID specified, return all the menus of the user.
-  if (!menuID) {
-    res.status(201).send({ menus: user.menus });
-    return;
+  if (query) {
+    let qmenus = user.menus.filter(menu => menu.name.toLowerCase().includes(query.toLowerCase()))
+    console.log(qmenus)
+    res.status(200).send(qmenus)
+    return
   }
 
-  res.status(201).send({ menu: menu });
+  //If there is no particular menuID specified, return all the menus of the user.
+  res.status(201).send({ menus: user.menus });
+  return;
+
 });
 
 //Add a new menu for the user
