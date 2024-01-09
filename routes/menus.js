@@ -11,15 +11,6 @@ router.route('/').get(async (req, res, next) => {
   let user;
   let menu;
 
-  try {
-    user = await User.findOne({ userID: userID }).orFail();
-  } catch (err) {
-    console.log(err)
-    err.type = 'user_not_found';
-    next(err);
-    return;
-  }
-
   if (menuID) {
 
     let menu = (await User.findOne({ "menus._id": mongoose.Types.ObjectId(menuID) }, {
@@ -34,6 +25,15 @@ router.route('/').get(async (req, res, next) => {
     }
 
     res.status(201).send({ menu: menu });
+    return;
+  }
+
+  try {
+    user = await User.findOne({ userID: userID }).orFail();
+  } catch (err) {
+    console.log(err)
+    err.type = 'user_not_found';
+    next(err);
     return;
   }
 
