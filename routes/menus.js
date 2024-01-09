@@ -22,7 +22,9 @@ router.route('/').get(async (req, res, next) => {
 
   if (menuID) {
 
-    menu = user.menus.id(menuID)
+    let menu = (await User.findOne({ "menus._id": mongoose.Types.ObjectId(menuID) }, {
+      "menus.$": 1
+    }).orFail())["menus"][0]
 
     if (!menu) {
       err = new Error("Invalid menu ID")
