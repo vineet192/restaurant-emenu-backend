@@ -28,6 +28,19 @@ router.route('/init').post(async (req, res) => {
   });
 });
 
+router.route("/").delete(async (req, res, next) => {
+  const userID = req.body.uid
+
+  try {
+    await User.deleteOne({ userID: userID }).orFail()
+    res.status(202).send({ msg: 'User sucesfully removed' })
+    return
+  }
+  catch (err) {
+    next(err)
+  }
+})
+
 
 
 module.exports = router;
