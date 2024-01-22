@@ -4,6 +4,7 @@ const Dish = require('./dish.model');
 var MenuSchema = new Schema({
   categories: {
     required: true,
+    validate: [categories => categories.length <= 25, "Number of categories exceed the allowed limit"],
     type: [
       {
         title: {
@@ -13,6 +14,7 @@ var MenuSchema = new Schema({
         dishes: {
           required: true,
           type: [Dish],
+          validate: [dishes => dishes.length <= 50, "Number of dishes exceed the allowed limit"]
         },
       },
     ],
