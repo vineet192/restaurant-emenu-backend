@@ -13,6 +13,9 @@ let DishSchema = Schema({
     type: Number,
     required: true,
   },
+  dishImage: {
+    type: String
+  }
 });
 
 module.exports = DishSchema;

@@ -7,7 +7,10 @@ var UserSchema = new Schema({
     required: true,
   },
 
-  menus: [MenuSchema]
+  menus: {
+    type: [MenuSchema],
+    validate: [(menus) => menus.length <= 25, "Number of menus exceed the allowed limit"]
+  }
 });
 
 const User = model('User', UserSchema);
