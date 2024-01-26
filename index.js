@@ -49,6 +49,13 @@ app.use(function (err, req, res, next) {
       });
       break
 
+    case "menu_not_allowed":
+      res.status(403).send({
+        instance: req.originalUrl,
+        title: "You are not authorized to edit this menu",
+      });
+      break;
+
     default:
       console.log(err);
       res.status(500).send({
