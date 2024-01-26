@@ -8,45 +8,40 @@ router.route('/').get(async (req, res, next) => {
   const userID = req.query.uid;
   const menuID = req.query.menuID;
   const query = req.query.query;
-  let user;
-  let menu;
+  const isPreview = req.query.isPreview && req.query.isPreview.trim().toLowerCase() === "true"
 
-  if (menuID) {
-
-    let menu = (await User.findOne({ "menus._id": mongoose.Types.ObjectId(menuID) }, {
-      "menus.$": 1
-    }).orFail())["menus"][0]
-
-    if (!menu) {
-      err = new Error("Invalid menu ID")
-      err.type = "menu_not_found"
+  if (query) {
+    try {
+      let qmenus = await queryUserForMenus(userID, query)
+      res.status(200).send(qmenus)
+      return
+    } catch (err) {
       next(err)
       return
     }
-
-    res.status(201).send({ menu: menu });
-    return;
-  }
-
-  try {
-    user = await User.findOne({ userID: userID }).orFail();
-  } catch (err) {
-    console.log(err)
-    err.type = 'user_not_found';
-    next(err);
-    return;
-  }
-
-  if (query) {
-    let qmenus = user.menus.filter(menu => menu.name.toLowerCase().includes(query.toLowerCase()))
-    console.log(qmenus)
-    res.status(200).send(qmenus)
-    return
   }
 
   //If there is no particular menuID specified, return all the menus of the user.
-  res.status(201).send({ menus: user.menus });
-  return;
+  if (!menuID) {
+    let menus;
+    try {
+      menus = await getAllMenusOfUser(userID)
+      res.status(201).send({ menus: menus });
+      return
+    } catch (err) {
+      next(err)
+      return
+    }
+  }
+
+  try {
+    let menu = await getMenuFromUser(userID, menuID, isPreview)
+    res.status(201).send({ menu: menu });
+    return;
+  } catch (err) {
+    next(err)
+    return
+  }
 
 });
 
@@ -141,5 +136,56 @@ router.route('/').patch(async (req, res, next) => {
 
   res.sendStatus(204);
 });
+
+async function queryUserForMenus(userID, query) {
+  let user
+  try {
+    user = await User.findOne({ userID: userID }).orFail();
+  } catch (err) {
+    err.type = 'user_not_found';
+    throw err
+  }
+
+  let qmenus = user.menus.filter(menu => menu.name.toLowerCase().includes(query.toLowerCase()))
+  return qmenus
+}
+
+async function getAllMenusOfUser(userID) {
+  let user
+  try {
+    user = await User.findOne({ userID: userID }).orFail();
+  } catch (err) {
+    err.type = 'user_not_found';
+    throw err
+  }
+
+  return user.menus
+}
+
+async function getMenuFromUser(userID, menuID, isPreview) {
+
+  let menu
+
+  try {
+
+    let menuFilter = { "menus._id": mongoose.Types.ObjectId(menuID) }
+
+    //If this data is not for preview, enforce user auth
+    if (!isPreview) menuFilter["userID"] = userID
+
+    menu = (await User.findOne(menuFilter, { "menus.$": 1 }).orFail())["menus"][0]
+
+  } catch (err) {
+    err.type = "menu_not_allowed"
+    throw err
+  }
+
+  if (!menu) {
+    err = new Error("Invalid menu ID")
+    err.type = "menu_not_found"
+    throw err
+  }
+  return menu
+}
 
 module.exports = router;
